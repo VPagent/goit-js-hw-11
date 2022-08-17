@@ -21,8 +21,8 @@ function onFormSubmit(event){
     event.preventDefault()
     btnLoad.classList.add("disabled")
     gallery.innerHTML = ""
-    inputValue = form[0].value.trim("")
-    console.log(inputValue)
+    let inputValue = form[0].value.trim("")
+    // console.log(inputValue)
     page = 1
 
     fetchPhoto().then(array => {
