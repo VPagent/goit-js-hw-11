@@ -28,12 +28,14 @@ function onFormSubmit(event){
     currentHits = 0
    
     fetchPhoto().then(array => {
+        btnLoad.classList.add("disabled")
         if(inputValue === "" || array.hits.length === 0){
             btnLoad.classList.add("disabled")
             return Notiflix.Notify.failure("Sorry, there are no images matching your search query. Please try again.")
         }
         const markup = mark(array.hits)
         gallery.insertAdjacentHTML("beforeend", markup)
+        btnLoad.classList.remove("disabled")
         Notiflix.Notify.success(`Hooray! We found ${totalHits} images`)
         if(currentHits < 40){
             btnLoad.classList.add("disabled")
@@ -41,7 +43,7 @@ function onFormSubmit(event){
         }
     })
     form.reset()
-    btnLoad.classList.remove("disabled")
+    // btnLoad.classList.remove("disabled")
     
 }
 
