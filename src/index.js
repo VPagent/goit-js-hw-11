@@ -21,18 +21,18 @@ let currentHits = 0
 
 function onFormSubmit(event){
     event.preventDefault()
-    btnLoad.classList.remove("disabled")
+    btnLoad.classList.add("disabled")
     gallery.innerHTML = ""
     inputValue = form[0].value.trim("")
     page = 1
     currentHits = 0
    
     fetchPhoto().then(array => {
-        if(inputValue === "" || array.length === 0){
+        if(inputValue === "" || array.hits.length === 0){
             btnLoad.classList.add("disabled")
             return Notiflix.Notify.failure("Sorry, there are no images matching your search query. Please try again.")
         }
-        const markup = mark(array)
+        const markup = mark(array.hits)
         gallery.insertAdjacentHTML("beforeend", markup)
         Notiflix.Notify.success(`Hooray! We found ${totalHits} images`)
         if(currentHits < 40){
@@ -46,7 +46,7 @@ function onFormSubmit(event){
 }
 
 
-async function onBtnClick(){
+function onBtnClick(){
     
     page += 1
     if(currentHits >= totalHits){
@@ -54,8 +54,13 @@ async function onBtnClick(){
         return Notiflix.Notify.failure("We're sorry, but you've reached the end of search results.")
     }
     fetchPhoto(page).then(array => {
-        const markup = mark(array)
+        const markup = mark(array.hits)
         gallery.insertAdjacentHTML("beforeend", markup)
+        console.log(array)
+        if(array.totalHits <= (page * 40)){
+         btnLoad.classList.add("disabled")
+        return Notiflix.Notify.failure("We're sorry, but you've reached the end of search results.")
+        }
     })  
 }
 
@@ -70,7 +75,7 @@ async function fetchPhoto(page = 1){
         });
         let BASE_URL = `https://pixabay.com/api/?key=29321758-e768d1c89c32410537fe23d2a&q=${inputValue}&page=${page}&${options}`
         const response = await axios.get(BASE_URL, options)
-        const photos = await response.data.hits
+        const photos = await response.data
         totalHits = await response.data.totalHits 
         return photos      
     } catch {error}
