@@ -16,42 +16,47 @@ btnLoad.addEventListener("click", onBtnClick)
 
 let inputValue = ""
 let page = 1
+let totalHits
+let currentHits = 0
 
 function onFormSubmit(event){
     event.preventDefault()
-    btnLoad.classList.add("disabled")
+    btnLoad.classList.remove("disabled")
     gallery.innerHTML = ""
     inputValue = form[0].value.trim("")
-    // console.log(inputValue)
     page = 1
-
+    currentHits = 0
+   
     fetchPhoto().then(array => {
-        
+        if(inputValue === "" || array.length === 0){
+            btnLoad.classList.add("disabled")
+            return Notiflix.Notify.failure("Sorry, there are no images matching your search query. Please try again.")
+        }
         const markup = mark(array)
         gallery.insertAdjacentHTML("beforeend", markup)
-        
-        // if(array.length !== 40){
-
-        //     btnLoad.classList.add("disabled")
-        //     return Notiflix.Notify.failure("Sorry, there are no images matching your search query. Please try again.")
-        // }
-        Notiflix.Notify.success("Hooray! We found 500 images")
+        Notiflix.Notify.success(`Hooray! We found ${totalHits} images`)
+        if(currentHits < 40){
+            btnLoad.classList.add("disabled")
+            return
+        }
     })
     form.reset()
     btnLoad.classList.remove("disabled")
-    
     
 }
 
 
 async function onBtnClick(){
-   
+    
     page += 1
+    if(currentHits >= totalHits){
+        btnLoad.classList.add("disabled")
+        return Notiflix.Notify.failure("We're sorry, but you've reached the end of search results.")
+    }
     fetchPhoto(page).then(array => {
         const markup = mark(array)
         gallery.insertAdjacentHTML("beforeend", markup)
-    })
-    
+    })  
 }
 
 async function fetchPhoto(page = 1){
@@ -66,17 +71,18 @@ async function fetchPhoto(page = 1){
         let BASE_URL = `https://pixabay.com/api/?key=29321758-e768d1c89c32410537fe23d2a&q=${inputValue}&page=${page}&${options}`
         const response = await axios.get(BASE_URL, options)
         const photos = await response.data.hits
-        console.log(response)
-        console.log(photos) 
-        return photos
-        
-    } catch {return Notiflix.Notify.failure("Sorry, there are no images matching your search query. Please try again.")}
+        totalHits = await response.data.totalHits 
+        return photos      
+    } catch {error}
    
 
 }
 
 function mark (arr){
     console.log(arr)
+    currentHits += arr.length
+    console.log(currentHits)
+    console.log(totalHits)
     const mar = arr.reduce((acc, elem) => {
             
        acc += `
