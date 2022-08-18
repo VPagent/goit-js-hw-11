@@ -14,28 +14,27 @@ form.addEventListener("submit", onFormSubmit)
 btnLoad.addEventListener("click", onBtnClick)
 
 
-
+let inputValue = ""
 let page = 1
 
 function onFormSubmit(event){
     event.preventDefault()
     btnLoad.classList.add("disabled")
     gallery.innerHTML = ""
-    let inputValue = form[0].value.trim("")
+    inputValue = form[0].value.trim("")
     // console.log(inputValue)
     page = 1
 
     fetchPhoto().then(array => {
         
-        
         const markup = mark(array)
         gallery.insertAdjacentHTML("beforeend", markup)
         
-        if(array.length !== 40){
+        // if(array.length !== 40){
 
-            btnLoad.classList.add("disabled")
-            return Notiflix.Notify.failure("Sorry, there are no images matching your search query. Please try again.")
-        }
+        //     btnLoad.classList.add("disabled")
+        //     return Notiflix.Notify.failure("Sorry, there are no images matching your search query. Please try again.")
+        // }
         Notiflix.Notify.success("Hooray! We found 500 images")
     })
     form.reset()
@@ -46,11 +45,7 @@ function onFormSubmit(event){
 
 
 async function onBtnClick(){
-    //  if(page === 13){
-    //     btnLoad.classList.add("disabled")
-    //     Notiflix.Notify.info("Its all photos")
-    //     return
-    // }
+   
     page += 1
     fetchPhoto(page).then(array => {
         const markup = mark(array)
@@ -60,14 +55,15 @@ async function onBtnClick(){
 }
 
 async function fetchPhoto(page = 1){
+
     try{
-        const options = await new URLSearchParams({
+        const options = new URLSearchParams({
             per_page: 40,
             image_type: "photo",
             orientation: "horizontal",
             safesearch: "true",
         });
-        let BASE_URL = await `https://pixabay.com/api/?key=29321758-e768d1c89c32410537fe23d2a&q=${inputValue}&page=${page}&${options}`
+        let BASE_URL = `https://pixabay.com/api/?key=29321758-e768d1c89c32410537fe23d2a&q=${inputValue}&page=${page}&${options}`
         const response = await axios.get(BASE_URL, options)
         const photos = await response.data.hits
         console.log(response)
@@ -80,7 +76,8 @@ async function fetchPhoto(page = 1){
 }
 
 function mark (arr){
-     return arr.reduce((acc, elem) => {
+    console.log(arr)
+    const mar = arr.reduce((acc, elem) => {
             
        acc += `
         <div class="photo-card" width="400px">
@@ -108,6 +105,7 @@ function mark (arr){
         </div>`
         return acc
     }, "")
+    return mar
 }
 
 
